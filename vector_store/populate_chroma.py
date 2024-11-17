@@ -1,24 +1,38 @@
 from vector_store.chroma_store import ChromaStore
 from utils.embedding_utils import EmbeddingUtils
+import logging
 
-def populate_chroma_store(precedents):
+logger = logging.getLogger(__name__)
+
+def populate_chroma_store(documents):
     """
-    Populate the ChromaStore with legal precedents.
-    
-    :param precedents: List of tuples (id, text, metadata)
+    Populates the ChromaStore with embeddings for provided documents.
+
+    Args:
+        documents (list of dict): A list of dictionaries, each containing a document with keys 'id' and 'text'.
     """
     chroma_store = ChromaStore()
     embedding_utils = EmbeddingUtils()
 
-    for precedent_id, text, metadata in precedents:
-        embedding = embedding_utils.generate_embedding(text)
-        chroma_store.add_embedding(id=precedent_id, embedding=embedding, metadata=metadata)
-        print(f"Added precedent {precedent_id} to ChromaStore")
+    for idx, doc in enumerate(documents):
+        try:
+            logger.info(f"Processing document {idx + 1}/{len(documents)}: {doc['id']}")
+            embedding = embedding_utils.generate_embedding(doc["text"])
+            chroma_store.add_embedding(id=doc["id"], embedding=embedding, metadata=doc)
+            logger.info(f"Document {doc['id']} added successfully.")
+        except Exception as e:
+            logger.error(f"Error adding document {doc['id']}: {e}")
 
 if __name__ == "__main__":
-    # Example precedents
-    precedents = [
-        ("precedent_1", "Legal precedent text 1", {"case": "Case 1", "year": 2000}),
-        ("precedent_2", "Legal precedent text 2", {"case": "Case 2", "year": 2005}),
+    logging.basicConfig(level=logging.INFO)
+
+    # Example data to populate
+    documents = [
+        {"id": "doc_1", "text": "This is the first legal document about social control."},
+        {"id": "doc_2", "text": "This document discusses primitive justice and legal frameworks."},
+        {"id": "doc_3", "text": "An analysis of punitive measures in ancient societies."},
     ]
-    populate_chroma_store(precedents)
+
+    logger.info("Starting population of ChromaStore.")
+    populate_chroma_store(documents)
+    logger.info("Population completed.")

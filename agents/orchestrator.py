@@ -2,6 +2,7 @@ import logging
 from workflows.summarization_workflow import get_summarization_workflow
 from workflows.risk_workflow import get_risk_workflow
 from workflows.precedent_workflow import get_precedent_workflow
+from vector_store.populate_chroma import populate_chroma_store
 
 logger = logging.getLogger(__name__)
 
@@ -10,6 +11,10 @@ class Orchestrator:
         self.summarization_workflow = get_summarization_workflow()
         self.risk_workflow = get_risk_workflow()
         self.precedent_workflow = get_precedent_workflow()
+        
+    def setup_store(self, documents):
+        logger.info("Setting up ChromaStore with provided documents.")
+        populate_chroma_store(documents)
 
     def analyze_contract(self, text):
         try:
