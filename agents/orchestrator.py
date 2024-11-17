@@ -1,7 +1,7 @@
+import logging
 from workflows.summarization_workflow import get_summarization_workflow
 from workflows.risk_workflow import get_risk_workflow
 from workflows.precedent_workflow import get_precedent_workflow
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -21,12 +21,12 @@ class Orchestrator:
                 logger.warning("No summary generated.")
                 return {"error": "Summarization failed."}
 
-            # Step 2: Perform risk analysis
+            # Step 2: Analyze risks
             logger.info("Analyzing risks in the summary.")
             risk_output = self.risk_workflow.invoke({"summary": summary})
             risks = risk_output if isinstance(risk_output, str) else risk_output.get("risks", "No risks identified")
 
-            # Step 3: Search for precedents
+            # Step 3: Search precedents
             logger.info("Searching for precedents.")
             precedents_output = self.precedent_workflow.invoke({"summary": summary})
             precedents = precedents_output if isinstance(precedents_output, list) else []
@@ -39,5 +39,5 @@ class Orchestrator:
                 "precedents": precedents
             }
         except Exception as e:
-            logger.error(f"Error during analysis: {e}")
+            logger.error(f"Error in Orchestrator: {e}")
             return {"error": str(e)}

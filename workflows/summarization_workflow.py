@@ -1,13 +1,17 @@
 from langchain.prompts import PromptTemplate
-from langchain_ollama import OllamaLLM
+from langchain.llms import Ollama
+from langchain.schema.runnable import RunnableSequence
 
 def get_summarization_workflow():
+  
     prompt = PromptTemplate.from_template(
-        "Summarize this legal document:\n{summary}"
+        "Summarize the following legal document:\n{summary}"
     )
-    llm = OllamaLLM(model="llama3.2:latest")
 
-    # Use the pipe operator to chain prompt and llm
-    workflow = prompt | llm
+    
+    llm = Ollama(model="llama3.2:latest")
+
+    
+    workflow = RunnableSequence(prompt, llm)
 
     return workflow

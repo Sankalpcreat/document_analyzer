@@ -1,26 +1,23 @@
-import requests
 import logging
-from config.settings import OLLAMA_API_URL
+from utils.api_utils import call_ollama
+from utils.chunking_utils import chunk_text
 
 logger = logging.getLogger(__name__)
 
-class SummarizationAgent:
-    def __init__(self):
-        self.api_url = OLLAMA_API_URL
-        self.model = "llama3.2:latest"
-
-    def summarize(self, chunk):
+def get_summarization_workflow():
+    def summarization_workflow(text):
         try:
-            logger.info("Sending request to the Ollama API for summarization.")
-            response = requests.post(
-                f"{self.api_url}/generate",
-                json={"model": self.model, "prompt": f"Summarize this legal text:\n{chunk}"}
-            )
-            response.raise_for_status()
+            logger.info("Starting text chunking for summarization.")
+            chunks = chunk_text(text)
+            summaries = []
 
-            logger.info("Processing API response.")
-            data = response.json()
-            return data.get("response", "No summary generated.")
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error connecting to Ollama API: {e}")
-            return "Error: Unable to generate summary."
+            for chunk in chunks:
+                logger.info("Requesting summary for a chunk.")
+                summary = call_ollama(prompt=f"Summarize this legal text:\n{chunk}")
+                summaries.append(summary)
+
+            return " ".join(summaries)
+        except Exception as e:
+            logger.error(f"Error in summarization workflow: {e}")
+            return "Error: Unable to summarize the document."
+    return summarization_workflow
