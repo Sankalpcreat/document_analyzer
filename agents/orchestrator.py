@@ -1,6 +1,9 @@
 from workflows.summarization_workflow import get_summarization_workflow
 from workflows.risk_workflow import get_risk_workflow
 from workflows.precedent_workflow import get_precedent_workflow
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Orchestrator:
     def __init__(self):
@@ -9,21 +12,32 @@ class Orchestrator:
         self.precedent_workflow = get_precedent_workflow()
 
     def analyze_contract(self, text):
-        # Step 1: Summarize the document
-        summary_output = self.summarization_workflow.invoke({"summary": text})
-        summary = summary_output if isinstance(summary_output, str) else summary_output.get("summary", "No summary generated")
+        try:
+            # Step 1: Summarize the document
+            logger.info("Starting document summarization.")
+            summary_output = self.summarization_workflow.invoke({"summary": text})
+            summary = summary_output if isinstance(summary_output, str) else summary_output.get("summary", "No summary generated")
+            if not summary:
+                logger.warning("No summary generated.")
+                return {"error": "Summarization failed."}
 
-        # Step 2: Perform risk analysis
-        risk_output = self.risk_workflow.invoke({"summary": summary})
-        risks = risk_output if isinstance(risk_output, str) else risk_output.get("risks", "No risks identified")
+            # Step 2: Perform risk analysis
+            logger.info("Analyzing risks in the summary.")
+            risk_output = self.risk_workflow.invoke({"summary": summary})
+            risks = risk_output if isinstance(risk_output, str) else risk_output.get("risks", "No risks identified")
 
-        # Step 3: Search for precedents
-        precedents_output = self.precedent_workflow.invoke({"summary": summary})
-        precedents = precedents_output if isinstance(precedents_output, list) else []
+            # Step 3: Search for precedents
+            logger.info("Searching for precedents.")
+            precedents_output = self.precedent_workflow.invoke({"summary": summary})
+            precedents = precedents_output if isinstance(precedents_output, list) else []
 
-        # Combine results
-        return {
-            "summary": summary,
-            "risks": risks,
-            "precedents": precedents
-        }
+            # Combine results
+            logger.info("Analysis completed successfully.")
+            return {
+                "summary": summary,
+                "risks": risks,
+                "precedents": precedents
+            }
+        except Exception as e:
+            logger.error(f"Error during analysis: {e}")
+            return {"error": str(e)}
