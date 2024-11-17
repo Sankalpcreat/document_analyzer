@@ -1,0 +1,14 @@
+requests                          
+langchain                         
+sentence-transformers            
+chromadb                          
+pinecone-client                    
+
+
+pdfplumber                      
+
+
+arize                             
+
+
+pytest                            

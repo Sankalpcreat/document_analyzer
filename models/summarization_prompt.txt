@@ -1,0 +1,2 @@
+Summarize the following legal document, focusing on key clauses, penalties, and conditions:
+{text}

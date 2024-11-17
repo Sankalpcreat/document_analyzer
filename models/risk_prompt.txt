@@ -1,0 +1,2 @@
+Evaluate the following summarized legal text and identify any potential risks, including penalties, terminations, and breaches. Assign a risk score:
+{summary}
